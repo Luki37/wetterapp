@@ -1,0 +1,43 @@
+@use "sass:color";
+
+@use "./globals" as *;
+@use "./detailView";
+@use "./loading.scss";
+
+@font-face {
+  font-family: "Inter";
+  src: url(/src/fonts/Inter/Inter-VariableFont_opsz\,wght.ttf);
+}
+
+* {
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  @include largeScreens {
+    background-color: gray;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh;
+    background-color: color.adjust($background, $lightness: 10%);
+  }
+}
+
+#app {
+  background: linear-gradient(0deg, $elevation-2 0%, $background 50%);
+  color: $text-color;
+  padding: 1rem;
+  min-height: 100vh;
+  font-family: "Inter", sans-serif;
+
+  @include largeScreens {
+    width: 400px;
+    height: $max-height-desktop;
+    min-height: unset;
+    overflow: auto;
+    border-radius: $border-radius;
+    box-shadow: 1px 1px 5px black;
+  }
+}
