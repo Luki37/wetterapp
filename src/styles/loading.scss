@@ -1,4 +1,5 @@
-@use "./globals" as *;
+@use "./variables" as *;
+@use "./mixins" as *;
 
 .loading {
   display: flex;

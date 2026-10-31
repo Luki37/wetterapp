@@ -1,6 +1,7 @@
 @use "sass:color";
 
-@use "./globals" as *;
+@use "./variables" as *;
+@use "./mixins" as *;
 @use "./detailView";
 @use "./loading.scss";
 
@@ -12,6 +13,10 @@
 * {
   margin: 0;
   padding: 0;
+}
+
+::-webkit-scrollbar {
+  width: 0;
 }
 
 body {
