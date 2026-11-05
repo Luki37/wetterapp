@@ -4,7 +4,9 @@ import { rootElement } from "./main";
 import {
   formatHourlyTime,
   formatTemp,
+  formatToMilitaryTime,
   get24HoursForecastFromNow,
+  getDayOfWeek,
 } from "./utils";
 
 export async function loadDetailView(Ort) {
@@ -31,6 +33,15 @@ function renderDetailView(weatherData) {
       currentDay.day.maxwind_kph,
       forecast.forecastday,
       current.last_updated_epoch,
+    ) +
+    getForecastHtml(forecast.forecastday) +
+    getMiniStatsHtml(
+      current.humidity,
+      current.feelslike_c,
+      currentDay.astro.sunrise,
+      currentDay.astro.sunset,
+      current.precip_mm,
+      current.uv,
     );
 }
 
@@ -50,14 +61,16 @@ function getHeaderHtml(location, currentTemp, contition, maxTemp, minTemp) {
 function getTodayForecastHtml(
   condition,
   maxWind,
-  forecasdays,
+  forecastdays,
   lastUpdatedEpoch,
 ) {
   const hourlyForecastElements = get24HoursForecastFromNow(
-    forecasdays,
+    forecastdays,
     lastUpdatedEpoch,
-  ).map(
-    (hour, i) => `<div class="hourly-forecast">
+  )
+    .filter((el) => el !== undefined)
+    .map(
+      (hour, i) => `<div class="hourly-forecast">
             <div class="hourly-forecast__time">${i === 0 ? "Jetzt" : formatHourlyTime(hour.time) + " Uhr"}</div>
             <img
               src="https:${hour.condition.icon}"
@@ -67,7 +80,7 @@ function getTodayForecastHtml(
             <div class="hourly-forecast__temp">${formatTemp(hour.temp_c)}°</div>
           </div>
     `,
-  );
+    );
 
   const hourlyForecastHtml = hourlyForecastElements.join("");
 
@@ -78,6 +91,69 @@ function getTodayForecastHtml(
         </div>
         <div class="today-forecast__hours">
           ${hourlyForecastHtml}
+        </div>
+      </div>`;
+}
+
+function getForecastHtml(forecast) {
+  const forecastElements = forecast.map(
+    (forecastDay, i) => `<div class="forecast-day">
+            <div class="forecast-day__day">${i === 0 ? "Heute" : getDayOfWeek(forecastDay.date)}</div>
+            <img
+              src="https:${forecastDay.day.condition.icon}"
+              alt=""
+              class="forecast-day__icon"
+            />
+            <div class="forecast-day__maxtemp">H:${formatTemp(forecastDay.day.maxtemp_c)}°</div>
+            <div class="forecast-day__maxtemp">T:${formatTemp(forecastDay.day.mintemp_c)}°</div>
+            <div class="forecast-day__wind">Wind: ${forecastDay.day.maxwind_kph} km/h</div>
+          </div>`,
+  );
+
+  const forecastHtml = forecastElements.join("");
+
+  return `<div class="forecast">
+        <div class="forecast__title">Vorhersage für die nächsten drei Tage</div>
+        <div class="forecast__days">
+          ${forecastHtml}
+        </div>
+      </div>
+  
+  `;
+}
+
+function getMiniStatsHtml(
+  humidity,
+  feelsLike,
+  sunrise,
+  sunset,
+  precip,
+  uvIndex,
+) {
+  return `<div class="mini-stats">
+        <div class="mini-stat">
+          <div class="mini-stat__heading">Feuchtigkeit</div>
+          <div class="mini-stat__value">${humidity}%</div>
+        </div>
+        <div class="mini-stat">
+          <div class="mini-stat__heading">Gefühlt</div>
+          <div class="mini-stat__value">${formatTemp(feelsLike)}°</div>
+        </div>
+        <div class="mini-stat">
+          <div class="mini-stat__heading">Sonnenaufgang</div>
+          <div class="mini-stat__value">${formatToMilitaryTime(sunrise)} Uhr</div>
+        </div>
+        <div class="mini-stat">
+          <div class="mini-stat__heading">Sonnenuntergang</div>
+          <div class="mini-stat__value">${formatToMilitaryTime(sunset)} Uhr</div>
+        </div>
+        <div class="mini-stat">
+          <div class="mini-stat__heading">Niederschlag</div>
+          <div class="mini-stat__value">${precip} mm</div>
+        </div>
+        <div class="mini-stat">
+          <div class="mini-stat__heading">UV-Index</div>
+          <div class="mini-stat__value">${uvIndex}</div>
         </div>
       </div>`;
 }
